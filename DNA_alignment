@@ -1,0 +1,21 @@
+
+#Align to Myotis lucifugus genome using hisat2. 
+hisat2 -q -x /scratch/rek89/genome/hisat/mylu.rm -1 {filebase}.R1.repair.fastq.gz -2 {filebase}.R2.repair.fastq.gz -S {filebase}.sam
+
+#Convert sam to bam files with samtools
+for f in `ls -1 *.sam | sed 's/.sam//' `
+do
+samtools view -bS ${f}.sam > /projects/f_deenr_1/bobbyK/mylueq/DNA/bamsnew/${f}.bam
+done
+
+#Sort bam files with samtools
+for f in `ls -1 *.bam | sed 's/.bam//' `
+do
+samtools sort ${f}.bam -o ${f}.sorted.bam
+done
+
+#Index bam files with samtools
+for f in `ls -1 *.sorted.bam | sed 's/.sorted.bam//' `
+do
+samtools index ${f}.sorted.bam
+done
