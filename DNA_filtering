@@ -1,0 +1,25 @@
+#Remove optical duplicates via clumpify command from bbtools. 
+clumpify.sh in1=${f}_R1_001.fastq.gz in2=${f}_R2_001.fastq.gz out1=${f}_R1.uni.fastq.gz out2=${f}_R2.uni.fastq.gz dedupe optical dupedist=1200
+
+#TRIMMOMATIC. Trim adapters, reads with average phred score < 33, reads with a 4 bp sliding window average lower than 15, sequences with trimmed lengths lower than 30, beginning and end bases with quality scores lower than 3
+for f in `ls -1 *.uni.fastq.gz | sed 's/_R[1,2].uni.fastq.gz//' `
+do
+trimmomatic PE -threads 4 -phred33 ${f}_R1.uni.fastq.gz ${f}_R2.uni.fastq.gz \
+${f}.R1.uni.trim.fastq.gz ${f}.R1.uni.untrim.fastq.gz \
+${f}.R2.uni.trim.fastq.gz ${f}.R2.uni.untrim.fastq.gz \
+ILLUMINACLIP:nextadapt.fa:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:30
+done
+
+#Fastq_screen to remove human, bacterial, fungal, mouse, and viral DNA 
+for f in `ls -1 *.uni.trim.fastq.gz | sed 's/.R[1,2].uni.trim.fastq.gz//' `
+do
+fastq_screen --subset 0 --conf /home/rek89/miniconda3/share/fastq-screen-0.14.0-0/fastq_screen.conf.alt --tag --filter 00000000000000000000 --force --aligner Bowtie2 ${f}.R1.uni.trim.fastq.gz ${f}.R2.uni.trim.fastq.gz
+done
+
+#Remove reads whose pair was removed as a contaminant with the repair.sh function in bbtools
+for f in `ls -1 *.uni.trim.tagged_filter.fastq.gz | sed 's/.R[1,2].uni.trim.tagged_filter.fastq.gz//' `
+do
+repair.sh in=${f}.R1.uni.trim.tagged_filter.fastq.gz in2=${f}.R2.uni.trim.tagged_filter.fastq.gz out=${f}.R1.repair.fastq.gz out2=${f}.R2.repair.fastq.gz
+done
+
+
