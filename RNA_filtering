@@ -1,0 +1,27 @@
+#Remove rRNA contamination using 1st reference from SILVA and bbduk from bbtools.
+for f in `ls -1 raw/*-read-1.fastq.gz | sed 's/-read-1.fastq.gz//' `
+do
+bbduk.sh ignorejunk in=${f}-read-1.fastq.gz out=${f}.gen.fastq.gz outm=${f}.rrna.fastq.gz ref=rrna/LSUref138.1.fasta.gz k=31 hdist=1 stats=stats.txt
+done
+
+#Remove rRNA contamination using 2nd reference from SILVA and bbduk from bbtools
+for f in `ls -1 *.gen.fastq.gz | sed 's/.gen.fastq.gz//' `
+do
+bbduk.sh ignorejunk in=${f}.gen.fastq.gz out=/projects/f_deenr_1/bobbyK/mylueq/RNA/trim/${f}.gen2.fastq.gz outm=${f}.rrna2.fastq.gz ref=/projects/f_deenr_1/$
+done
+
+#TRIMMOMATIC. Trim adapters, poly-A tails, reads with phredd scores lower than 33, reads with 4 bp sliding window averages lower than a phred score of 15, beginning and end bases with phred scores lower than 3, and reads with trimmed lengths lower than 36.
+for f in `ls -1 *.gen2.fastq.gz | sed 's/.gen2.fastq.gz//' `
+do
+trimmomatic SE -phred33 ${f}.gen2.fastq.gz ${f}.gen2.trim.fastq.gz ILLUMINACLIP:pandt.fa:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
+done
+
+#Remove contaminant sequences from human, mouse, bacterial, fungal, and viral origins using fastq_screen
+for f in `ls -1 *.gen2.trim.fastq.gz | sed 's/.gen2.trim.fastq.gz//' `
+do
+fastq_screen --subset 0 --tag --filter 00--000000000000000000 --force --aligner Bowtie2 ${f}.gen2.trim.fastq.gz
+done
+
+
+
+
