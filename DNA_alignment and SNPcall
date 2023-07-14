@@ -1,0 +1,43 @@
+  ##Prior to alignment, trim genome to areas with mappability scores higher than 1 with genmap.
+
+#index genome with genmap
+genmap index -F Myotis_lucifugus.Myoluc2.0.dna_rm.toplevel.fa -I genmapindex2
+
+#Get mappability scores for genome
+genmap map -K 100 -E 2 -I genmapindex2 -O gmapout.2 -bg
+
+#Create filter file of mappability scores
+awk -F$'\t' 'BEGIN{OFS="\t"} $4 < 1.0 { print $1, $2, $3, ".", $4 }' gmapout.2.bedgraph > gmap.mylu.rm.100k_filtered.bed
+
+#Mask genome using bedtools and filterfile
+bedtools maskfasta -fi Myotis_lucifugus.Myoluc2.0.dna_rm.toplevel.fa -bed gmap.mylu.rm.100k_filtered.bed -fo mylu.genome.rm.gmap.k100.fa
+
+  ##Alignment
+#Align to Myotis lucifugus genome using hisat2. 
+hisat2 -q -x /scratch/rek89/genome/hisat/mylu.rm -1 {filebase}.R1.repair.fastq.gz -2 {filebase}.R2.repair.fastq.gz -S {filebase}.sam
+
+#Convert sam to bam files with samtools
+for f in `ls -1 *.sam | sed 's/.sam//' `
+do
+samtools view -bS ${f}.sam > /projects/f_deenr_1/bobbyK/mylueq/DNA/bamsnew/${f}.bam
+done
+
+#Sort bam files with samtools
+for f in `ls -1 *.bam | sed 's/.bam//' `
+do
+samtools sort ${f}.bam -o ${f}.sorted.bam
+done
+
+#Index bam files with samtools
+for f in `ls -1 *.sorted.bam | sed 's/.sorted.bam//' `
+do
+samtools index ${f}.sorted.bam
+done
+
+  ## SNP calling
+
+#Calling variants for just the target SNPs. Minimum coverage 6x, minimum MAF 5%, posterior probability cutoff 0.8, min Ind 15.
+angsd -bam bamlist.txt -dogeno 2 -GL 1 -doMajorMinor 2 -doPost 1 -doMaf 1 -geno_minDepth 6 -geno_minMM 0.05 -postCutoff 0.8 -minInd 15 -docounts 1 -rf sites2.file  -out just2filt.snp
+
+#Calling variants for all the target and random regions. Also create genotype likelihood file for PCA (beagle format, -doGLF command). Minimum coverage 6x, minimum MAF 20%, posterior probability cutoff 0.8, minimum individuals 100, minimum hardy weinberg p-value of 0.05.
+angsd -bam bamlist.txt -dogeno 2 -doGLF 2 -GL 1 -doMajorMinor 2 -doPost 1 -doMaf 1 -geno_minDepth 6 -geno_minMM 0.2 -minMaf 0.2 -postCutoff 0.8 -minInd 100 -doHWE 1 -minHWEpval 0.05 -docounts 1 -out fullb.snp
