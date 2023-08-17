@@ -1,0 +1,4 @@
+#Calling variants for just the target SNPs. Minimum coverage 6x, minimum MAF 5%, posterior probability cutoff 0.8, min Ind 15.
+angsd -bam bamlist.txt -dogeno 2 -GL 1 -doMajorMinor 2 -doPost 1 -doMaf 1 -geno_minDepth 6 -geno_minMM 0.05 -postCutoff 0.8 -minInd 15 -docounts 1 -rf sites2.file  -out just2filt.snp
+
+
