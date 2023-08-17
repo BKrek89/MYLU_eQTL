@@ -1,4 +1,6 @@
 #Calling variants for just the target SNPs. Minimum coverage 6x, minimum MAF 5%, posterior probability cutoff 0.8, min Ind 15.
 angsd -bam bamlist.txt -dogeno 2 -GL 1 -doMajorMinor 2 -doPost 1 -doMaf 1 -geno_minDepth 6 -geno_minMM 0.05 -postCutoff 0.8 -minInd 15 -docounts 1 -rf sites2.file  -out just2filt.snp
 
+#Calling variants for all the target and random regions. Also create genotype likelihood file for PCA (beagle format, -doGLF command). Minimum coverage 6x, minimum MAF 20%, posterior probability cutoff 0.8, minimum individuals 100, minimum hardy weinberg p-value of 0.05.
+angsd -bam bamlist.txt -dogeno 2 -doGLF 2 -GL 1 -doMajorMinor 2 -doPost 1 -doMaf 1 -geno_minDepth 6 -geno_minMM 0.2 -minMaf 0.2 -postCutoff 0.8 -minInd 100 -doHWE 1 -minHWEpval 0.05 -docounts 1 -out fullb.snp
 
