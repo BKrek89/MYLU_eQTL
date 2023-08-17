@@ -1,0 +1,52 @@
+#Align reads using STAR.
+STAR --runMode alignReads --outFilterScoreMinOverLread 0 --outFilterMatchNminOverLread 0 --outFilterMatchNmin 0 --outFilterMismatchNmax 2 --outSAMtype BAM Unsorted --readFilesCommand zcat --genomeDir /projects/f_deenr_1/bobbyK/mylueq/RNA/grna/ --outFileNamePrefix /projects/f_deenr_1/bobbyK/mylueq/RNA/bams/${f}.a1.gen2.bam  --readFilesIn  ${f}.gen2.trim.tagged_filter.fastq.gz
+
+#Create count tables for each sample using htseq
+for f in `ls -1 *.a1.gen2.bamAligned.out.bam | sed 's/.a1.gen2.bamAligned.out.bam//' `
+do
+htseq-count -f bam -s no -i gene_id ${f}.a1.gen2.bamAligned.out.bam /scratch/rek89/genome/Myotis_lucifugus.Myoluc2.0.102.gtf > ${f}.hscount
+done
+
+#Merge all into count table
+FILES=$(ls -t -v *.hscount | tr '\n' ' ');
+
+awk 'NF > 1{ a[$1] = a[$1]"\t"$2} END {for( i in a ) print i a[i]}' $FILES > merged.htseq
+
+
+## In R
+#load libraries
+library(dplyr)
+library(ggplot2)
+library(ggbiplot)
+if (!requireNamespace("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+
+BiocManager::install("edgeR")
+
+# filter low count sequences. (Less than 149, rows with less than 3 samples that have 10 or greater reads)
+keep <- rowSums(expression_raw_pos[,5:153]) >= 149
+expression.c149 <- expression_raw_pos[keep,]
+
+expression.c149.filt <- expression.c149[!apply(expression.c149[,5:153], 1, function(x) all(x < 10)), ]
+
+#Trimmed mean of M-values normalize. Add back gen coordinates in excel first.
+expression.list <- DGEList(expression.c149.filt, lib.size = colSums(expression.c149.filt), samples = NULL, group = NULL, genes = NULL, remove.zeros = FALSE)
+
+
+expression.list <- edgeR::calcNormFactors(expression.list, method = "TMM")
+expression.list <- cpm(expression.list, normalized.lib.sizes = TRUE)
+expression.c149.filt.norm <- as.data.frame(expression.list)
+
+#PCA   
+exppca <- prcomp(expression_c149_filt_norm_equaljust_sort_trans[, 2:7966])
+#PCA plot
+exppcs <- as.data.frame(exppca2$x)
+exppcs$PC1sc <- scale(exppcs$PC1, center = TRUE, scale = TRUE)
+exppcs$PC2sc <- scale(exppcs$PC2, center = TRUE, scale = TRUE)
+dev.new(width=3, height=10, unit="in")
+plot(x=exppcs$PC1sc, y=exppcs$PC2sc, col=popR2$color, pch=popR2$WNSnum, xlab="PC1",ylab="PC2", main="expression pca")
+#Extract PC scores for each sample to use as eQTL covariates and for checking for correlations between PC1 and other factors
+exppcs <- as.data.frame(exppca$x)
+#Extract correlations between genes and PCs
+corr <- as.data.frame(exppca$rotation)
+corrpc1sort <- corr[order(corr$PC1),]
