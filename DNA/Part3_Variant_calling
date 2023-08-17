@@ -4,3 +4,18 @@ angsd -bam bamlist.txt -dogeno 2 -GL 1 -doMajorMinor 2 -doPost 1 -doMaf 1 -geno_
 #Calling variants for all the target and random regions. Also create genotype likelihood file for PCA (beagle format, -doGLF command). Minimum coverage 6x, minimum MAF 20%, posterior probability cutoff 0.8, minimum individuals 100, minimum hardy weinberg p-value of 0.05.
 angsd -bam bamlist.txt -dogeno 2 -doGLF 2 -GL 1 -doMajorMinor 2 -doPost 1 -doMaf 1 -geno_minDepth 6 -geno_minMM 0.2 -minMaf 0.2 -postCutoff 0.8 -minInd 100 -doHWE 1 -minHWEpval 0.05 -docounts 1 -out fullb.snp
 
+#PCA using PCangsd to determine population structure.
+python3 /home/**/miniconda3/pkgs/pcangsd-0.98.2-py36h39e3cac_1/pcangsd/pcangsd.py -threads 10 -beagle /projects/f_deenr_1/**/mylueq/DNA/bamsnew/fullb.snp.beagle.gz -selection -o mylu.pca
+
+##PCA graph, in R
+C <- as.matrix(mylu.pca)
+e <- eigen(C)
+#make into a dataframe and scale/center the first 2 principal components
+e.frame <- as.data.frame(e$vectors)
+e.frame$V1s <- scale(e.frame$V1, center = TRUE, scale = TRUE)
+e.frame$V2s <- scale(e.frame$V2, center = TRUE, scale = TRUE)
+
+
+dev.new(width=3, height=10, unit="in")
+plot(e$vectors[,1:2],col=pop$color, pch=pop$WNS, xlab="PC1",ylab="PC2", main="individual allele frequency")
+dev.new(width=3, height=10, unit="in")
