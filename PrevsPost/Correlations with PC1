@@ -9,7 +9,8 @@ library(MuMIn)
 #We made a table in excel including covariate information and PC1 scores for each sample. PC1 scores came from the expression data PCA in RNA part2.
 #Scale and center PC1 scores
 pc1data$PC1s <- scale(pc1data$PC1, center = TRUE, scale = TRUE)
-
+#histogram of PC1 values
+hist(pc1data$PC1s)
 #Pre vs Post WNS model
 wnsmod <- lm(PC1s~WNS, pc1data)
 summary(wnsmod)
