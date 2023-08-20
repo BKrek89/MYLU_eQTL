@@ -1,4 +1,4 @@
-#Limit samples to only those that have both genotype data from DNA part 3 and expression data from RNA part 2
+#Limit samples to only those that have both target SNP genotype data from DNA part 3 and expression data from RNA part 2. 
 
 #R-code. Using Matrix-eQTL to perform a cis-trans analysis on the target region SNPs. Create covariate files including the sex, hibernaculum, state of origin, sequencing batch, and principal component covariates. Also create position files containing the scaffold and bp # for each SNP and gene.
 
@@ -90,3 +90,17 @@ ggplot(pcvseqtl, aes(x=PC, y=trans))+
 #Choose the analysis with the number of covariates that maximize the number cis and trans eQTLs. 
 
 #Quality control on the optimal analyses.
+#Re-run matrix-eQTL using the optimal number of PCs for cis and trans analyses.
+#The code is all the same except adding the below at the end for a qqplot 
+
+pvalue.hist = "qqplot",
+    min.pv.by.genesnp = FALSE,
+    noFDRsaveMemory = FALSE);
+    plot(meq, pch= 16, cex = 0.7)
+
+#and the below for a p-value histogram.
+pvalue.hist = 100,
+    min.pv.by.genesnp = FALSE,
+    noFDRsaveMemory = FALSE);
+    plot(meh, col="grey")
+
