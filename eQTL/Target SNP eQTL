@@ -60,6 +60,33 @@ me = Matrix_eQTL_main(
     min.pv.by.genesnp = FALSE,
     noFDRsaveMemory = FALSE);
 
-#Run this same command progressively removing PC covariates starting from the first 120 PCs. 
+#Run this same command progressively removing PC covariates starting from the first 120 PCs. This is inteneded to control for variation resulting from confounding un-measured variables. 
 
 #Take note of the number of cis and trans eqtls discovered and graph in R
+
+library(ggplot2)
+
+pcvseqtl <- (a.data.frame containing 4 columns; the number of PCs used as covariates, the number of total eQTLs discovered, the number of trans eQTLs discovered, the number of cis eQTLs discovered)
+ggplot(pcvseqtl, aes(x=PC, y=total))+
+  geom_point()+
+  geom_line(size=1)+
+  ylab("Total eQTLs Detected")+
+  xlab("Principal Component Covariate")+
+  theme(text = element_text(size=20))
+
+ggplot(pcvseqtl, aes(x=PC, y=cis))+
+  geom_point()+
+  geom_line(size=1)+
+  ylab("Cis eQTLs Detected")+
+  xlab("Principal Component Covariate")+
+  theme(text = element_text(size=20))
+
+ggplot(pcvseqtl, aes(x=PC, y=trans))+
+  geom_point()+
+  geom_line(size=1)+
+  ylab("Trans eQTLs Detected")+
+  xlab("Principal Component Covariate")+
+  theme(text = element_text(size=20))
+#Choose the analysis with the number of covariates that maximize the number cis and trans eQTLs. 
+
+#Quality control on the optimal analyses.
