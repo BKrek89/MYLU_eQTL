@@ -1,0 +1,21 @@
+#Use ngsLD to calculate linkage disequilibrium using the genotype file generated in DNA part3.
+
+/home/**/ngsLD/ngsLD --verbose 3 --n_threads 15 --geno snp.ngsld.geno.gz --posH pos.ngsld.txt --n_ind 134 --n_sites 14412 --out mylu.all.ld
+
+#Disequilibrium decay plot in R. Where ngsld_out_trun2 is the output file from ngsLD above.
+
+library(ggplot2)
+library(dplyr)
+library(Rmisc)
+summarySE()
+summary(ngsld_out_trun2)
+
+ngsld_out_trun2 <- ngsld_out_trun %>% mutate(disbin = cut(dis, breaks=c(0, 100, 500, 1000, 2000, 5000, 10000, 20000, 40000, 100000)))
+tgc <- summarySE(ngsld_out_trun2, measurevar="r2pc", groupvars=c("disbin"), conf.interval=0.95)
+ggplot(tgc, aes(x=disbin, y=r2pc)) + 
+  geom_errorbar(aes(ymin=r2pc-ci, ymax=r2pc+ci), width=0.5) +
+  geom_line() +
+  geom_point() +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"))
+
+
