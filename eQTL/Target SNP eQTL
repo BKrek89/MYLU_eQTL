@@ -1,6 +1,7 @@
 #Limit samples to only those that have both genotype data from DNA part 3 and expression data from RNA part 2
 
-#R-code. Using Matrix-eQTL to perform a cis-trans analysis on the target region SNPs
+#R-code. Using Matrix-eQTL to perform a cis-trans analysis on the target region SNPs. Create covariate files including the sex, hibernaculum, state of origin, sequencing batch, and principal component covariates. Also create position files containing the scaffold and bp # for each SNP and gene.
+
 
 #Define variables and thresholds
 
@@ -58,3 +59,7 @@ me = Matrix_eQTL_main(
     pvalue.hist = TRUE,
     min.pv.by.genesnp = FALSE,
     noFDRsaveMemory = FALSE);
+
+#Run this same command progressively removing PC covariates starting from the first 120 PCs. 
+
+#Take note of the number of cis and trans eqtls discovered and graph in R
