@@ -20,4 +20,4 @@ The genotype file created from the DNA pipeline and the read count table generat
 The code for these analyses can be found in the eQTL folder.
 
 Finally, we compared gene expression between samples collected from unexposed hibernacula and exposed hiberncula using a differential expression analysis. We also compared the values of principal component 1 between exposed and unexposed populations.
-The code for these analyses can be found in the 
+The code for these analyses can be found in the PrevsPost folder.
