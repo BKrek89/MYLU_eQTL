@@ -91,7 +91,7 @@ ggplot(pcvseqtl, aes(x=PC, y=trans))+
 
 #Quality control on the optimal analyses.
 #Re-run matrix-eQTL using the optimal number of PCs for cis and trans analyses.
-#The code is all the same except adding the below at the end for a qqplot 
+#The code is all the same for MatrixeQTL except adding the below at the end for a qqplot 
 
 pvalue.hist = "qqplot",
     min.pv.by.genesnp = FALSE,
