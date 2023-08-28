@@ -43,7 +43,7 @@ expression.list <- edgeR::calcNormFactors(expression.list, method = "TMM")
 expression.list <- cpm(expression.list, normalized.lib.sizes = TRUE)
 expression.c149.filt.norm <- as.data.frame(expression.list)
 
-#PCA   
+#PCA. Transpose data set first so that samples are rows instead of columns.  
 exppca <- prcomp(expression_c149_filt_norm_equaljust_sort_trans[, 2:7966])
 #PCA plot
 exppcs <- as.data.frame(exppca2$x)
