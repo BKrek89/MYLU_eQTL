@@ -1,5 +1,5 @@
 ##In R
-#Using read-count table from RNA part 2
+#Using read-count table from RNA part 2 prior to normalization
 
 #Load Libraries
 library(tidyverse)
