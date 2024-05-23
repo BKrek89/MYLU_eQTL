@@ -1,9 +1,0 @@
-#Separate the output from the target-region eQTL into loci located in target regions and random regions. Then perform two analyses in R. 
-
-#See if there are more sites with eQTLs in target or random regions
-hsbin <- glm(ebin~exp, hotspottable, family = "binomial")
-summary(hsbin)
-
-#See if there are more eQTLs per site in target or random regions
-hsnum <- glm(enum~exp, hotspottable, family = "poisson")
-summary(hsnum)
